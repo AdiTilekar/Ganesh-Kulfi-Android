@@ -298,7 +298,7 @@ This project is proprietary software for **Shri Ganesh Kulfi**.
 
 - **Founder**: Ganesh Raut
 - **Location**: Kopargaon, Maharashtra
-- **Developer**: [Your Name]
+- **Developer**: Aditya Tilekar
 
 ## 📞 Support
 
