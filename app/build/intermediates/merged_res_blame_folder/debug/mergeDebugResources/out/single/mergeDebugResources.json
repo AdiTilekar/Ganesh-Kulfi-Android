@@ -1,0 +1,126 @@
+[
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_jamun_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/jamun_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_chikoo_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/chikoo_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_paan_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/paan_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/xml_data_extraction_rules.xml.flat",
+        "source": "com.ganeshkulfi.app-main-65:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_rabdi_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/rabdi_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_mango_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/mango_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_gulkand_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/gulkand_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_fig_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/fig_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_strawberry_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/strawberry_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_pineapple_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/pineapple_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_guava_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/guava_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_cut_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/cut_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_logo.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/logo.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/xml_backup_rules.xml.flat",
+        "source": "com.ganeshkulfi.app-main-65:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_dry_fruit_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/dry_fruit_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_sitafal_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/sitafal_kulfi.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.ganeshkulfi.app-debug-63:/drawable_chocolate_kulfi.png.flat",
+        "source": "com.ganeshkulfi.app-main-65:/drawable/chocolate_kulfi.png"
+    }
+]
