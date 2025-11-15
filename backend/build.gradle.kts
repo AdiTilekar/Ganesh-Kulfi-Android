@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "com.ganeshkulfi"
-version = "0.0.1"
+version = "0.0.10-SNAPSHOT"
 
 // Set Java compatibility to 21 (latest Kotlin supports)
 java {
@@ -46,6 +46,11 @@ dependencies {
     // CORS (for Android client)
     implementation("io.ktor:ktor-server-cors-jvm")
     
+    // Day 11: Ktor Client for FCM Push Notifications
+    implementation("io.ktor:ktor-client-core-jvm")
+    implementation("io.ktor:ktor-client-cio-jvm")
+    implementation("io.ktor:ktor-client-content-negotiation-jvm")
+    
     // Call Logging
     implementation("io.ktor:ktor-server-call-logging-jvm")
     
@@ -61,7 +66,6 @@ dependencies {
     
     // Database Drivers
     implementation("org.postgresql:postgresql:42.7.1")  // PostgreSQL
-    implementation("com.mysql:mysql-connector-j:8.2.0")  // MySQL (alternative)
     
     // Exposed ORM Framework
     implementation("org.jetbrains.exposed:exposed-core:0.45.0")
@@ -69,10 +73,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.45.0")
     implementation("org.jetbrains.exposed:exposed-java-time:0.45.0")
     
-    // Flyway Database Migration
-    implementation("org.flywaydb:flyway-core:10.4.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.4.1")  // For PostgreSQL
-    implementation("org.flywaydb:flyway-mysql:10.4.1")  // For MySQL
+    // Flyway Database Migration (v9.x supports PostgreSQL in core)
+    implementation("org.flywaydb:flyway-core:9.22.3")
     
     // HikariCP Connection Pool
     implementation("com.zaxxer:HikariCP:5.1.0")

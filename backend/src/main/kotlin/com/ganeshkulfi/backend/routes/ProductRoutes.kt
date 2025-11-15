@@ -420,6 +420,229 @@ fun Route.productRoutes(productService: ProductService) {
                     )
                 }
             }
+            
+            /**
+             * Day 13: PATCH /api/products/{id}/image
+             * Update product image (Admin only)
+             */
+            patch("/{id}/image") {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userRole = principal?.getClaim("role", String::class)
+                        ?.let { UserRole.valueOf(it) }
+                    
+                    if (userRole != UserRole.ADMIN) {
+                        call.respond(
+                            HttpStatusCode.Forbidden,
+                            ErrorResponse("Only admins can update product images")
+                        )
+                        return@patch
+                    }
+                    
+                    val id = call.parameters["id"] ?: run {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            ErrorResponse("Product ID is required")
+                        )
+                        return@patch
+                    }
+                    
+                    @kotlinx.serialization.Serializable
+                    data class ImageUpdateRequest(val imageUrl: String)
+                    
+                    val request = call.receive<ImageUpdateRequest>()
+                    
+                    if (request.imageUrl.isBlank()) {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            ErrorResponse("Image URL is required")
+                        )
+                        return@patch
+                    }
+                    
+                    productService.updateProductImage(id, request.imageUrl).fold(
+                        onSuccess = { product ->
+                            call.respond(
+                                HttpStatusCode.OK,
+                                ApiResponse(
+                                    success = true,
+                                    message = "Product image updated successfully",
+                                    data = product
+                                )
+                            )
+                        },
+                        onFailure = { error ->
+                            call.respond(
+                                HttpStatusCode.BadRequest,
+                                ErrorResponse(error.message ?: "Failed to update product image")
+                            )
+                        }
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ErrorResponse("Server error: ${e.message}")
+                    )
+                }
+            }
+            
+            /**
+             * Day 13: PATCH /api/products/{id}/stock
+             * Update product stock (Admin only)
+             */
+            patch("/{id}/stock") {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userRole = principal?.getClaim("role", String::class)
+                        ?.let { UserRole.valueOf(it) }
+                    
+                    if (userRole != UserRole.ADMIN) {
+                        call.respond(
+                            HttpStatusCode.Forbidden,
+                            ErrorResponse("Only admins can update product stock")
+                        )
+                        return@patch
+                    }
+                    
+                    val id = call.parameters["id"] ?: run {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            ErrorResponse("Product ID is required")
+                        )
+                        return@patch
+                    }
+                    
+                    val request = call.receive<UpdateStockDTO>()
+                    
+                    productService.updateProductStock(id, request.stockQuantity).fold(
+                        onSuccess = { product ->
+                            call.respond(
+                                HttpStatusCode.OK,
+                                ApiResponse(
+                                    success = true,
+                                    message = "Product stock updated successfully",
+                                    data = product
+                                )
+                            )
+                        },
+                        onFailure = { error ->
+                            call.respond(
+                                HttpStatusCode.BadRequest,
+                                ErrorResponse(error.message ?: "Failed to update product stock")
+                            )
+                        }
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ErrorResponse("Server error: ${e.message}")
+                    )
+                }
+            }
+            
+            /**
+             * Day 13: PATCH /api/products/{id}/activate
+             * Activate product (Admin only)
+             */
+            patch("/{id}/activate") {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userRole = principal?.getClaim("role", String::class)
+                        ?.let { UserRole.valueOf(it) }
+                    
+                    if (userRole != UserRole.ADMIN) {
+                        call.respond(
+                            HttpStatusCode.Forbidden,
+                            ErrorResponse("Only admins can activate products")
+                        )
+                        return@patch
+                    }
+                    
+                    val id = call.parameters["id"] ?: run {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            ErrorResponse("Product ID is required")
+                        )
+                        return@patch
+                    }
+                    
+                    productService.activateProduct(id).fold(
+                        onSuccess = { product ->
+                            call.respond(
+                                HttpStatusCode.OK,
+                                ApiResponse(
+                                    success = true,
+                                    message = "Product activated successfully",
+                                    data = product
+                                )
+                            )
+                        },
+                        onFailure = { error ->
+                            call.respond(
+                                HttpStatusCode.BadRequest,
+                                ErrorResponse(error.message ?: "Failed to activate product")
+                            )
+                        }
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ErrorResponse("Server error: ${e.message}")
+                    )
+                }
+            }
+            
+            /**
+             * Day 13: PATCH /api/products/{id}/deactivate
+             * Deactivate product (Admin only)
+             */
+            patch("/{id}/deactivate") {
+                try {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userRole = principal?.getClaim("role", String::class)
+                        ?.let { UserRole.valueOf(it) }
+                    
+                    if (userRole != UserRole.ADMIN) {
+                        call.respond(
+                            HttpStatusCode.Forbidden,
+                            ErrorResponse("Only admins can deactivate products")
+                        )
+                        return@patch
+                    }
+                    
+                    val id = call.parameters["id"] ?: run {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            ErrorResponse("Product ID is required")
+                        )
+                        return@patch
+                    }
+                    
+                    productService.deactivateProduct(id).fold(
+                        onSuccess = { product ->
+                            call.respond(
+                                HttpStatusCode.OK,
+                                ApiResponse(
+                                    success = true,
+                                    message = "Product deactivated successfully",
+                                    data = product
+                                )
+                            )
+                        },
+                        onFailure = { error ->
+                            call.respond(
+                                HttpStatusCode.BadRequest,
+                                ErrorResponse(error.message ?: "Failed to deactivate product")
+                            )
+                        }
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        ErrorResponse("Server error: ${e.message}")
+                    )
+                }
+            }
         }
     }
 }

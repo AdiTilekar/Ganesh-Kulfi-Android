@@ -1,6 +1,5 @@
 package com.ganeshkulfi.backend.data.repository
 
-import com.ganeshkulfi.backend.data.models.PricingTier
 import com.ganeshkulfi.backend.data.models.User
 import com.ganeshkulfi.backend.data.models.UserRole
 import com.ganeshkulfi.backend.data.models.Users
@@ -27,7 +26,7 @@ class UserRepository {
         role: UserRole = UserRole.CUSTOMER,
         retailerId: String? = null,
         shopName: String? = null,
-        tier: PricingTier? = null
+        tier: String = "BASIC"  // Day 9: RetailerTier as String
     ): User? = transaction {
         val userId = UUID.randomUUID()
         
@@ -103,7 +102,7 @@ class UserRepository {
                     "role" -> it[role] = UserRole.valueOf(value as String)
                     "retailerId" -> it[retailerId] = value as? String
                     "shopName" -> it[shopName] = value as? String
-                    "tier" -> it[tier] = value?.let { v -> PricingTier.valueOf(v as String) }
+                    "tier" -> it[tier] = value as String  // Day 9: RetailerTier as String
                     "passwordHash" -> it[passwordHash] = value as String
                 }
             }

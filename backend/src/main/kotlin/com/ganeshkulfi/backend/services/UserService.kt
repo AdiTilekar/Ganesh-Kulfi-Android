@@ -1,7 +1,7 @@
 package com.ganeshkulfi.backend.services
 
 import com.ganeshkulfi.backend.data.dto.*
-import com.ganeshkulfi.backend.data.models.PricingTier
+import com.ganeshkulfi.backend.data.models.RetailerTier
 import com.ganeshkulfi.backend.data.models.User
 import com.ganeshkulfi.backend.data.models.UserRole
 import com.ganeshkulfi.backend.data.repository.UserRepository
@@ -125,14 +125,12 @@ class UserService(
             return Result.failure(IllegalArgumentException("Invalid role: ${request.role}"))
         }
         
-        // Convert tier string to enum if provided
-        val pricingTier = request.tier?.let {
-            try {
-                PricingTier.valueOf(it.uppercase())
-            } catch (e: IllegalArgumentException) {
-                return Result.failure(IllegalArgumentException("Invalid tier: $it"))
-            }
-        }
+        // Convert tier string to RetailerTier if provided (Day 9)
+        val retailerTier = request.tier?.let {
+            RetailerTier.fromString(it) ?: return Result.failure(
+                IllegalArgumentException("Invalid tier: $it. Must be BASIC, SILVER, GOLD, or PLATINUM")
+            )
+        }?.name ?: "BASIC"
         
         // Create user
         val user = userRepository.create(
@@ -143,7 +141,7 @@ class UserService(
             role = userRole,
             retailerId = request.retailerId,
             shopName = request.shopName,
-            tier = pricingTier
+            tier = retailerTier
         ) ?: return Result.failure(IllegalStateException("Failed to create user"))
         
         return Result.success(UserResponse.fromUser(user))
@@ -182,14 +180,11 @@ class UserService(
         }
         request.shopName?.let { updates["shopName"] = it }
         
-        // Convert tier string to enum if provided
+        // Convert tier string to RetailerTier if provided (Day 9)
         request.tier?.let { tierStr ->
-            val pricingTier = try {
-                PricingTier.valueOf(tierStr.uppercase())
-            } catch (e: IllegalArgumentException) {
-                return Result.failure(IllegalArgumentException("Invalid tier: $tierStr"))
-            }
-            updates["tier"] = pricingTier
+            val retailerTier = RetailerTier.fromString(tierStr)
+                ?: return Result.failure(IllegalArgumentException("Invalid tier: $tierStr. Must be BASIC, SILVER, GOLD, or PLATINUM"))
+            updates["tier"] = retailerTier.name
         }
         
         // Update user
@@ -226,4 +221,5 @@ class UserService(
         val users = userRepository.findByRole(role)
         return Result.success(users.map { UserResponse.fromUser(it) })
     }
+    
 }

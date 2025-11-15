@@ -15,13 +15,20 @@ enum class UserRole {
 }
 
 /**
- * Pricing Tiers for Retailers
+ * Day 9: Retailer Tier for Advanced Pricing System
+ * Server-side only - NEVER exposed to retailer API responses
  */
-enum class PricingTier(val discountPercentage: Double) {
-    VIP(25.0),        // 25% discount
-    PREMIUM(15.0),    // 15% discount
-    REGULAR(10.0),    // 10% discount
-    RETAIL(5.0)       // 5% discount
+enum class RetailerTier {
+    BASIC,
+    SILVER,
+    GOLD,
+    PLATINUM;
+
+    companion object {
+        fun fromString(value: String): RetailerTier? {
+            return entries.find { it.name.equals(value, ignoreCase = true) }
+        }
+    }
 }
 
 /**
@@ -38,7 +45,7 @@ object Users : UUIDTable("app_user") {
     // Retailer-specific fields
     val retailerId = varchar("retailer_id", 50).nullable().uniqueIndex()
     val shopName = varchar("shop_name", 200).nullable()
-    val tier = enumerationByName("tier", 50, PricingTier::class).nullable()
+    val tier = varchar("tier", 20).default("BASIC") // Day 9: retailer_tier enum in DB
     
     // Timestamps
     val createdAt = timestamp("created_at").default(Instant.now())
@@ -58,7 +65,7 @@ data class User(
     val role: UserRole = UserRole.CUSTOMER,
     val retailerId: String? = null,
     val shopName: String? = null,
-    val tier: PricingTier? = null,
+    val tier: String = "BASIC", // Day 9: RetailerTier stored as string (BASIC/SILVER/GOLD/PLATINUM)
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
 )

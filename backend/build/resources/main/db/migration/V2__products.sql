@@ -6,20 +6,28 @@ CREATE TABLE IF NOT EXISTS product (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    base_price DECIMAL(10, 2) NOT NULL,
+    base_price NUMERIC(10, 2) NOT NULL,
     category VARCHAR(50) NOT NULL,
     image_url VARCHAR(255),
     is_available BOOLEAN DEFAULT TRUE,
     is_seasonal BOOLEAN DEFAULT FALSE,
-    stock_quantity INT DEFAULT 0,
-    min_order_quantity INT DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    INDEX idx_category (category),
-    INDEX idx_available (is_available),
-    INDEX idx_name (name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    stock_quantity INTEGER DEFAULT 0,
+    min_order_quantity INTEGER DEFAULT 1,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_category ON product(category);
+CREATE INDEX IF NOT EXISTS idx_available ON product(is_available);
+CREATE INDEX IF NOT EXISTS idx_name ON product(name);
+
+-- Create trigger for product updated_at
+DROP TRIGGER IF EXISTS update_product_updated_at ON product;
+CREATE TRIGGER update_product_updated_at
+    BEFORE UPDATE ON product
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert 13 kulfi flavors (exactly matching the Android app Flavor.kt)
 INSERT INTO product (id, name, description, base_price, category, image_url, is_available, is_seasonal, stock_quantity) VALUES

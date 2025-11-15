@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Product Response DTO
+ * stockQuantity is null for retailer access (hidden), only visible to admin
  */
 @Serializable
 data class ProductResponse(
@@ -17,13 +18,18 @@ data class ProductResponse(
     val imageUrl: String?,
     val isAvailable: Boolean,
     val isSeasonal: Boolean,
-    val stockQuantity: Int,
+    val stockQuantity: Int? = null, // Hidden from retailers, only admin sees this
     val minOrderQuantity: Int,
+    val isActive: Boolean, // Day 13: Product activation status
     val createdAt: String,
     val updatedAt: String
 ) {
     companion object {
-        fun fromProduct(product: Product): ProductResponse {
+        /**
+         * Convert Product to Response DTO
+         * @param includeStock true to include stock info (admin only), false to hide (retailers)
+         */
+        fun fromProduct(product: Product, includeStock: Boolean = false): ProductResponse {
             return ProductResponse(
                 id = product.id,
                 name = product.name,
@@ -33,8 +39,9 @@ data class ProductResponse(
                 imageUrl = product.imageUrl,
                 isAvailable = product.isAvailable,
                 isSeasonal = product.isSeasonal,
-                stockQuantity = product.stockQuantity,
+                stockQuantity = if (includeStock) product.stockQuantity else null,
                 minOrderQuantity = product.minOrderQuantity,
+                isActive = product.isActive, // Day 13
                 createdAt = product.createdAt.toString(),
                 updatedAt = product.updatedAt.toString()
             )
@@ -70,8 +77,8 @@ data class UpdateProductRequest(
     val imageUrl: String? = null,
     val isAvailable: Boolean? = null,
     val isSeasonal: Boolean? = null,
-    val stockQuantity: Int? = null,
-    val minOrderQuantity: Int? = null
+    val minOrderQuantity: Int? = null,
+    val status: String? = null
 )
 
 /**

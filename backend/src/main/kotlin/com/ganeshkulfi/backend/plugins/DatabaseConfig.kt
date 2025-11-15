@@ -12,7 +12,7 @@ import javax.sql.DataSource
  * Sets up database connection with HikariCP connection pool
  * and runs Flyway migrations
  * 
- * Supports: PostgreSQL (default) and MySQL
+ * Database: PostgreSQL 14+
  */
 object DatabaseConfig {
     
@@ -27,26 +27,20 @@ object DatabaseConfig {
         val password = config.property("database.password").getString()
         val maxPoolSize = config.property("database.maxPoolSize").getString().toInt()
         
-        // Auto-detect database type from port (3306 = MySQL, 5432 = PostgreSQL)
-        val isMySQL = port == "3306"
-        val jdbcUrl = if (isMySQL) {
-            "jdbc:mysql://$host:$port/$dbName?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
-        } else {
-            "jdbc:postgresql://$host:$port/$dbName"
-        }
-        val driverClass = if (isMySQL) "com.mysql.cj.jdbc.Driver" else "org.postgresql.Driver"
+        // PostgreSQL connection string
+        val jdbcUrl = "jdbc:postgresql://$host:$port/$dbName"
+        val driverClass = "org.postgresql.Driver"
         
         // Configure HikariCP connection pool
         val dataSource = createDataSource(jdbcUrl, user, password, maxPoolSize, driverClass)
         
         // Run Flyway migrations
-        runMigrations(dataSource, isMySQL)
+        runMigrations(dataSource)
         
         // Connect Exposed ORM
         Database.connect(dataSource)
         
-        val dbType = if (isMySQL) "MySQL" else "PostgreSQL"
-        environment.log.info("✅ $dbType database connected: $jdbcUrl")
+        environment.log.info("✅ PostgreSQL database connected: $jdbcUrl")
     }
     
     private fun createDataSource(
@@ -79,7 +73,7 @@ object DatabaseConfig {
         return HikariDataSource(config)
     }
     
-    private fun runMigrations(dataSource: DataSource, isMySQL: Boolean) {
+    private fun runMigrations(dataSource: DataSource) {
         val flyway = Flyway.configure()
             .dataSource(dataSource)
             .locations("classpath:db/migration")
@@ -89,10 +83,9 @@ object DatabaseConfig {
         
         val migrationInfo = flyway.info()
         val pending = migrationInfo.pending().size
-        val dbType = if (isMySQL) "MySQL" else "PostgreSQL"
         
         if (pending > 0) {
-            println("⏳ Running $pending pending $dbType Flyway migration(s)...")
+            println("⏳ Running $pending pending PostgreSQL Flyway migration(s)...")
             flyway.migrate()
             println("✅ Flyway migrations completed successfully!")
         } else {

@@ -1,6 +1,5 @@
 package com.ganeshkulfi.backend.data.dto
 
-import com.ganeshkulfi.backend.data.models.PricingTier
 import com.ganeshkulfi.backend.data.models.User
 import com.ganeshkulfi.backend.data.models.UserRole
 import kotlinx.serialization.Serializable
@@ -79,7 +78,7 @@ data class UserResponse(
                 role = user.role.name,
                 retailerId = user.retailerId,
                 shopName = user.shopName,
-                tier = user.tier?.name,
+                tier = user.tier,  // Day 9: Already a String
                 createdAt = user.createdAt.toString(),
                 updatedAt = user.updatedAt.toString()
             )
