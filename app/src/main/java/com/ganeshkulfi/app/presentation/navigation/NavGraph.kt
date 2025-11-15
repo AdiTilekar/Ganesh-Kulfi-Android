@@ -206,7 +206,9 @@ fun NavGraph(
         }
         
         composable(Screen.AdminOrders.route) {
+            val adminViewModel: com.ganeshkulfi.app.presentation.viewmodel.AdminViewModel = hiltViewModel()
             AdminOrdersScreen(
+                adminViewModel = adminViewModel,
                 onBackClick = {
                     navController.navigate(Screen.Admin.route) {
                         popUpTo(Screen.AdminOrders.route) { inclusive = true }

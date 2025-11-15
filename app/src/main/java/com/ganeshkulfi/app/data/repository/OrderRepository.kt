@@ -13,7 +13,7 @@ import javax.inject.Singleton
 class OrderRepository @Inject constructor() {
     
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
-    private val ordersFlow: Flow<List<Order>> = _orders.asStateFlow()
+    val ordersFlow: Flow<List<Order>> = _orders.asStateFlow()
 
     suspend fun createOrder(order: Order): Result<String> {
         return try {
@@ -26,9 +26,9 @@ class OrderRepository @Inject constructor() {
         }
     }
 
-    fun getUserOrdersFlow(userId: String): Flow<List<Order>> {
+    fun getUserOrdersFlow(retailerId: String): Flow<List<Order>> {
         return ordersFlow.map { orders ->
-            orders.filter { it.userId == userId }
+            orders.filter { it.retailerId == retailerId }
                 .sortedByDescending { it.createdAt }
         }
     }
@@ -71,10 +71,34 @@ class OrderRepository @Inject constructor() {
         return updateOrderStatus(orderId, OrderStatus.CANCELLED)
     }
 
+    suspend fun updatePaymentStatus(orderId: String, paymentStatus: com.ganeshkulfi.app.data.model.PaymentStatus): Result<Unit> {
+        return try {
+            _orders.value = _orders.value.map { order ->
+                if (order.id == orderId) {
+                    order.copy(
+                        paymentStatus = paymentStatus,
+                        updatedAt = System.currentTimeMillis()
+                    )
+                } else {
+                    order
+                }
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun getRetailerOrdersFlow(retailerId: String): Flow<List<Order>> {
         return ordersFlow.map { orders ->
-            orders.filter { it.userId == retailerId }
+            android.util.Log.d("OrderRepository", "Total orders: ${orders.size}, filtering for retailerId: $retailerId")
+            orders.forEach { order ->
+                android.util.Log.d("OrderRepository", "Order ${order.id}: retailerId=${order.retailerId}")
+            }
+            val filtered = orders.filter { it.retailerId == retailerId }
                 .sortedByDescending { it.createdAt }
+            android.util.Log.d("OrderRepository", "Filtered orders count: ${filtered.size}")
+            filtered
         }
     }
 
@@ -94,7 +118,7 @@ class OrderRepository @Inject constructor() {
 
     suspend fun getTotalRevenue(): Double {
         return _orders.value.filter { 
-            it.status == OrderStatus.DELIVERED || it.status == OrderStatus.READY 
+            it.status == OrderStatus.CONFIRMED || it.status == OrderStatus.COMPLETED 
         }.sumOf { it.totalAmount }
     }
 

@@ -17,37 +17,10 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminOrdersScreen(
+    adminViewModel: com.ganeshkulfi.app.presentation.viewmodel.AdminViewModel,
     onBackClick: () -> Unit
 ) {
-    // Sample orders data - Replace with actual ViewModel later
-    val sampleOrders = remember {
-        listOf(
-            OrderInfo(
-                orderId = "ORD001",
-                customerName = "Rajesh Kumar",
-                items = 5,
-                total = 250.0,
-                status = "Pending",
-                timestamp = System.currentTimeMillis() - 3600000
-            ),
-            OrderInfo(
-                orderId = "ORD002",
-                customerName = "Priya Sharma",
-                items = 3,
-                total = 150.0,
-                status = "Completed",
-                timestamp = System.currentTimeMillis() - 7200000
-            ),
-            OrderInfo(
-                orderId = "ORD003",
-                customerName = "Amit Patel",
-                items = 8,
-                total = 400.0,
-                status = "Processing",
-                timestamp = System.currentTimeMillis() - 1800000
-            )
-        )
-    }
+    val orders by adminViewModel.orders.collectAsState()
 
     Scaffold(
         topBar = {
@@ -64,7 +37,7 @@ fun AdminOrdersScreen(
             )
         }
     ) { padding ->
-        if (sampleOrders.isEmpty()) {
+        if (orders.isEmpty()) {
             // Empty state
             Box(
                 modifier = Modifier
@@ -122,17 +95,17 @@ fun AdminOrdersScreen(
                             ) {
                                 SummaryItem(
                                     label = "Total Orders",
-                                    value = sampleOrders.size.toString(),
+                                    value = orders.size.toString(),
                                     icon = Icons.Default.ShoppingBag
                                 )
                                 SummaryItem(
                                     label = "Pending",
-                                    value = sampleOrders.count { it.status == "Pending" }.toString(),
+                                    value = orders.count { it.status == com.ganeshkulfi.app.data.model.OrderStatus.PENDING }.toString(),
                                     icon = Icons.Default.PendingActions
                                 )
                                 SummaryItem(
                                     label = "Completed",
-                                    value = sampleOrders.count { it.status == "Completed" }.toString(),
+                                    value = orders.count { it.status == com.ganeshkulfi.app.data.model.OrderStatus.COMPLETED }.toString(),
                                     icon = Icons.Default.CheckCircle
                                 )
                             }
@@ -151,8 +124,16 @@ fun AdminOrdersScreen(
                 }
 
                 // Orders
-                items(sampleOrders) { order ->
-                    OrderCard(order = order)
+                items(orders) { order ->
+                    OrderCard(
+                        order = order,
+                        onUpdateStatus = { orderId, newStatus ->
+                            adminViewModel.updateOrderStatus(orderId, newStatus)
+                        },
+                        onMarkPaymentReceived = { orderId ->
+                            adminViewModel.markPaymentReceived(orderId)
+                        }
+                    )
                 }
             }
         }
@@ -188,8 +169,13 @@ private fun SummaryItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OrderCard(order: OrderInfo) {
+private fun OrderCard(
+    order: com.ganeshkulfi.app.data.model.Order,
+    onUpdateStatus: (String, com.ganeshkulfi.app.data.model.OrderStatus) -> Unit,
+    onMarkPaymentReceived: (String) -> Unit
+) {
     var showDetailsDialog by remember { mutableStateOf(false) }
+    var showStatusMenu by remember { mutableStateOf(false) }
 
     Card(
         onClick = { showDetailsDialog = true },
@@ -203,25 +189,26 @@ private fun OrderCard(order: OrderInfo) {
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        order.orderId,
+                        order.id,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        order.customerName,
+                        order.retailerName,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
-                StatusChip(status = order.status)
+                StatusChip(status = order.status.name)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -232,36 +219,159 @@ private fun OrderCard(order: OrderInfo) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        "${order.items} items",
+                        "${order.items.size} items",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
 
-                Text(
-                    "₹${order.total}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        "₹${order.totalAmount}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    // Payment status badge
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Icon(
+                            if (order.paymentStatus == com.ganeshkulfi.app.data.model.PaymentStatus.PAID)
+                                Icons.Default.CheckCircle
+                            else
+                                Icons.Default.Warning,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = if (order.paymentStatus == com.ganeshkulfi.app.data.model.PaymentStatus.PAID)
+                                MaterialTheme.colorScheme.tertiary
+                            else
+                                MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            order.paymentStatus.name.lowercase().replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (order.paymentStatus == com.ganeshkulfi.app.data.model.PaymentStatus.PAID)
+                                MaterialTheme.colorScheme.tertiary
+                            else
+                                MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Schedule,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    formatTime(order.timestamp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Schedule,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        formatTime(order.createdAt),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                // Action buttons row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Payment status button
+                    if (order.paymentStatus != com.ganeshkulfi.app.data.model.PaymentStatus.PAID) {
+                        FilledTonalButton(
+                            onClick = { onMarkPaymentReceived(order.id) },
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp),
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.Payment,
+                                contentDescription = "Mark Payment Received",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Payment Received", style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                    
+                    // Status update buttons
+                    if (order.status != com.ganeshkulfi.app.data.model.OrderStatus.CANCELLED) {
+                        Box {
+                            FilledTonalButton(
+                                onClick = { showStatusMenu = true },
+                                modifier = Modifier.height(32.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.ChangeCircle,
+                                    contentDescription = "Change Status",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Update Status", style = MaterialTheme.typography.labelSmall)
+                            }
+
+                            DropdownMenu(
+                                expanded = showStatusMenu,
+                                onDismissRequest = { showStatusMenu = false }
+                            ) {
+                                if (order.status == com.ganeshkulfi.app.data.model.OrderStatus.PENDING) {
+                                    DropdownMenuItem(
+                                        text = { Text("Mark as Confirmed") },
+                                        onClick = {
+                                            onUpdateStatus(order.id, com.ganeshkulfi.app.data.model.OrderStatus.CONFIRMED)
+                                            showStatusMenu = false
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.CheckCircle, contentDescription = null)
+                                        }
+                                    )
+                                }
+                                if (order.status == com.ganeshkulfi.app.data.model.OrderStatus.CONFIRMED) {
+                                    DropdownMenuItem(
+                                        text = { Text("Mark as Completed") },
+                                        onClick = {
+                                            onUpdateStatus(order.id, com.ganeshkulfi.app.data.model.OrderStatus.COMPLETED)
+                                            showStatusMenu = false
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Done, contentDescription = null)
+                                        }
+                                    )
+                                }
+                                if (order.status != com.ganeshkulfi.app.data.model.OrderStatus.COMPLETED) {
+                                    DropdownMenuItem(
+                                        text = { Text("Cancel Order") },
+                                        onClick = {
+                                            onUpdateStatus(order.id, com.ganeshkulfi.app.data.model.OrderStatus.CANCELLED)
+                                            showStatusMenu = false
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Cancel, contentDescription = null)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -277,9 +387,10 @@ private fun OrderCard(order: OrderInfo) {
 @Composable
 private fun StatusChip(status: String) {
     val (containerColor, contentColor) = when (status) {
-        "Pending" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
-        "Processing" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
-        "Completed" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+        "PENDING" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+        "CONFIRMED" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+        "COMPLETED" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+        "CANCELLED" -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
         else -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant
     }
 
@@ -288,7 +399,7 @@ private fun StatusChip(status: String) {
         shape = MaterialTheme.shapes.small
     ) {
         Text(
-            status,
+            status.lowercase().replaceFirstChar { it.uppercase() },
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
             style = MaterialTheme.typography.labelSmall,
             color = contentColor,
@@ -299,7 +410,7 @@ private fun StatusChip(status: String) {
 
 @Composable
 private fun OrderDetailsDialog(
-    order: OrderInfo,
+    order: com.ganeshkulfi.app.data.model.Order,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -312,14 +423,63 @@ private fun OrderDetailsDialog(
         },
         text = {
             Column(
+                modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                DetailRow("Order ID", order.orderId)
-                DetailRow("Customer", order.customerName)
-                DetailRow("Items", "${order.items} items")
-                DetailRow("Total Amount", "₹${order.total}")
-                DetailRow("Status", order.status)
-                DetailRow("Order Time", formatFullTime(order.timestamp))
+                DetailRow("Order ID", order.id)
+                DetailRow("Retailer", order.retailerName)
+                order.shopName?.let {
+                    DetailRow("Shop", it)
+                }
+                DetailRow("Status", order.status.name.lowercase().replaceFirstChar { it.uppercase() })
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "Items:",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                order.items.forEach { item ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            "${item.productName} x${item.quantity}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            "₹${item.lineTotal}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                DetailRow("Subtotal", "₹${order.subtotal}")
+                if (order.discount > 0) {
+                    DetailRow("Discount", "-₹${order.discount}")
+                }
+                DetailRow("Total Amount", "₹${order.totalAmount}")
+                DetailRow("Payment", order.paymentStatus.name.lowercase().replaceFirstChar { it.uppercase() })
+                DetailRow("Order Time", formatFullTime(order.createdAt))
+                
+                order.retailerNotes?.let {
+                    if (it.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            "Notes:",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -366,13 +526,3 @@ private fun formatFullTime(timestamp: Long): String {
     val sdf = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
     return sdf.format(Date(timestamp))
 }
-
-// Data class for order information
-private data class OrderInfo(
-    val orderId: String,
-    val customerName: String,
-    val items: Int,
-    val total: Double,
-    val status: String,
-    val timestamp: Long
-)

@@ -270,11 +270,11 @@ class AuthRepository @Inject constructor(
 
     suspend fun signIn(email: String, password: String): Result<User> {
         return try {
-            // Check for hardcoded admin credentials first
-            if (email == ADMIN_EMAIL && password == ADMIN_PASSWORD) {
+            // Temporary: Check for test admin credentials (for development)
+            if (email == "admin@ganeshkulfi.com" && password == "Admin1234") {
                 val adminUser = User(
                     id = "admin_001",
-                    email = ADMIN_EMAIL,
+                    email = "admin@ganeshkulfi.com",
                     name = "Admin",
                     phone = "9876543210",
                     role = UserRole.ADMIN
@@ -294,11 +294,11 @@ class AuthRepository @Inject constructor(
                 return Result.success(adminUser)
             }
             
-            // Check for hardcoded test retailer credentials
-            if (email == RETAILER_EMAIL && password == RETAILER_PASSWORD) {
+            // Temporary: Check for test retailer credentials (for development)
+            if (email == "retailer@test.com" && password == "Retailer1234") {
                 val retailerUser = User(
                     id = "user_ret_001",
-                    email = RETAILER_EMAIL,
+                    email = "retailer@test.com",
                     name = "Rajesh Kumar",
                     phone = "9876543210",
                     role = UserRole.RETAILER,
@@ -572,14 +572,6 @@ class AuthRepository @Inject constructor(
     }
 
     companion object {
-        // Admin credentials (hardcoded for demo)
-        private const val ADMIN_EMAIL = "admin@ganeshkulfi.com"
-        private const val ADMIN_PASSWORD = "admin123"
-        
-        // Test Retailer credentials (hardcoded for demo)
-        private const val RETAILER_EMAIL = "retailer@test.com"
-        private const val RETAILER_PASSWORD = "retailer123"
-        
         // SharedPreferences keys
         private const val KEY_USER_ID = "user_id"
         private const val KEY_EMAIL = "email"
