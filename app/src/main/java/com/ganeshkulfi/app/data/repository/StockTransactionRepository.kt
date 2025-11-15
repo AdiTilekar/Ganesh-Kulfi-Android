@@ -99,7 +99,7 @@ class StockTransactionRepository @Inject constructor() {
 
     fun getPendingPayments(): List<StockTransaction> {
         return _transactions.value.filter { 
-            it.paymentStatus == com.ganeshkulfi.app.data.model.PaymentStatus.PENDING 
+            it.paymentStatus == com.ganeshkulfi.app.data.model.PaymentStatus.UNPAID 
         }
     }
 
@@ -137,7 +137,7 @@ class StockTransactionRepository @Inject constructor() {
                 unitPrice = pricePerUnit,
                 totalAmount = totalAmount,
                 transactionType = type,
-                paymentStatus = com.ganeshkulfi.app.data.model.PaymentStatus.PENDING,
+                paymentStatus = com.ganeshkulfi.app.data.model.PaymentStatus.UNPAID,
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis()
             )

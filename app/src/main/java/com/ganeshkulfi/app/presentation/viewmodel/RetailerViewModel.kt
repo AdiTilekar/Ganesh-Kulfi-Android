@@ -31,6 +31,7 @@ class RetailerViewModel @Inject constructor(
     val myOrders: StateFlow<List<Order>> = authRepository.currentUserFlow
         .flatMapLatest { user ->
             if (user != null) {
+                android.util.Log.d("RetailerViewModel", "Filtering orders for email: ${user.email}")
                 orderRepository.getRetailerOrdersFlow(user.email ?: "")
             } else {
                 flowOf(emptyList())
@@ -141,27 +142,28 @@ class RetailerViewModel @Inject constructor(
                 val summary = cartSummary.value
                 val orderItems = _cartItems.value.values.map { cartItem ->
                     OrderItem(
-                        flavorId = cartItem.flavorKey,
-                        flavorName = cartItem.flavorName,
+                        productId = cartItem.flavorKey,
+                        productName = cartItem.flavorName,
                         quantity = cartItem.quantity,
-                        basePrice = cartItem.basePrice,
-                        discountedPrice = cartItem.discountedPrice,
-                        subtotal = cartItem.subtotal
+                        unitPrice = cartItem.basePrice,
+                        discountAmount = cartItem.basePrice - cartItem.discountedPrice,
+                        lineTotal = cartItem.subtotal
                     )
                 }
 
                 val order = Order(
-                    userId = currentUser.email ?: "",
-                    customerName = currentUser.name ?: "",
-                    customerPhone = currentUser.phone ?: "",
-                    shopName = currentUser.shopName ?: "",
+                    retailerId = currentUser.email ?: "",  // Use email as stable identifier
+                    retailerEmail = currentUser.email ?: "",
+                    retailerName = currentUser.name ?: "",
+                    shopName = currentUser.shopName,
                     items = orderItems,
                     subtotal = summary.subtotal,
-                    discountAmount = summary.discountAmount,
+                    discount = summary.discountAmount,
                     totalAmount = summary.totalAmount,
-                    notes = notes
+                    retailerNotes = notes
                 )
 
+                android.util.Log.d("RetailerViewModel", "Creating order with retailerId: ${order.retailerId}, email: ${order.retailerEmail}")
                 val result = orderRepository.createOrder(order)
                 if (result.isSuccess) {
                     clearCart()
@@ -200,24 +202,24 @@ class RetailerViewModel @Inject constructor(
                 val discountAmount = baseSubtotal - itemSubtotal
 
                 val orderItem = OrderItem(
-                    flavorId = product.flavorId,
-                    flavorName = product.flavorName,
+                    productId = product.flavorId,
+                    productName = product.flavorName,
                     quantity = quantity,
-                    basePrice = product.sellingPrice,
-                    discountedPrice = discountedPrice,
-                    subtotal = itemSubtotal
+                    unitPrice = product.sellingPrice,
+                    discountAmount = product.sellingPrice - discountedPrice,
+                    lineTotal = itemSubtotal
                 )
 
                 val order = Order(
-                    userId = currentUser.email ?: "",
-                    customerName = currentUser.name ?: "",
-                    customerPhone = currentUser.phone ?: "",
-                    shopName = currentUser.shopName ?: "",
+                    retailerId = currentUser.id ?: "",
+                    retailerEmail = currentUser.email ?: "",
+                    retailerName = currentUser.name ?: "",
+                    shopName = currentUser.shopName,
                     items = listOf(orderItem),
                     subtotal = baseSubtotal,
-                    discountAmount = discountAmount,
+                    discount = discountAmount,
                     totalAmount = itemSubtotal,
-                    notes = notes
+                    retailerNotes = notes
                 )
 
                 val result = orderRepository.createOrder(order)

@@ -3,8 +3,11 @@ package com.ganeshkulfi.app.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ganeshkulfi.app.data.model.InventoryItem
+import com.ganeshkulfi.app.data.model.Order
+import com.ganeshkulfi.app.data.model.OrderStatus
 import com.ganeshkulfi.app.data.model.Retailer
 import com.ganeshkulfi.app.data.repository.InventoryRepository
+import com.ganeshkulfi.app.data.repository.OrderRepository
 import com.ganeshkulfi.app.data.repository.RetailerRepository
 import com.ganeshkulfi.app.data.repository.StockTransactionRepository
 import com.ganeshkulfi.app.data.repository.PricingRepository
@@ -17,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AdminViewModel @Inject constructor(
     private val inventoryRepository: InventoryRepository,
+    private val orderRepository: OrderRepository,
     private val retailerRepository: RetailerRepository,
     private val stockTransactionRepository: StockTransactionRepository,
     private val pricingRepository: PricingRepository,
@@ -29,6 +33,14 @@ class AdminViewModel @Inject constructor(
 
     // Inventory
     val inventory: StateFlow<List<InventoryItem>> = inventoryRepository.inventoryFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    // Orders
+    val orders: StateFlow<List<Order>> = orderRepository.ordersFlow
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -80,7 +92,7 @@ class AdminViewModel @Inject constructor(
                 val activeRetailers = retailers.count { it.isActive }
                 val totalOutstanding = retailers.sumOf { it.totalOutstanding }
                 val pendingPayments = transactions.count { 
-                    it.paymentStatus == com.ganeshkulfi.app.data.model.PaymentStatus.PENDING 
+                    it.paymentStatus == com.ganeshkulfi.app.data.model.PaymentStatus.UNPAID 
                 }
                 
                 DashboardStats(
@@ -293,6 +305,31 @@ class AdminViewModel @Inject constructor(
                     remainingAmount = 0.0
                 }
             }
+        }
+    }
+
+    // Order Operations
+    fun updateOrderStatus(orderId: String, newStatus: OrderStatus) {
+        viewModelScope.launch {
+            orderRepository.updateOrderStatus(orderId, newStatus)
+        }
+    }
+
+    fun cancelOrder(orderId: String) {
+        viewModelScope.launch {
+            orderRepository.cancelOrder(orderId)
+        }
+    }
+
+    fun markPaymentReceived(orderId: String) {
+        viewModelScope.launch {
+            orderRepository.updatePaymentStatus(orderId, com.ganeshkulfi.app.data.model.PaymentStatus.PAID)
+        }
+    }
+
+    fun markPaymentPending(orderId: String) {
+        viewModelScope.launch {
+            orderRepository.updatePaymentStatus(orderId, com.ganeshkulfi.app.data.model.PaymentStatus.UNPAID)
         }
     }
 }
