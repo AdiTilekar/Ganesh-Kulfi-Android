@@ -1,3 +1,7 @@
 app/build/
 backend/build/
 .idea/
+app/build/
+backend/build/
+.idea/
+*.dex
